@@ -34,9 +34,11 @@ async def adapt_channels(state: ContentState, runtime: Runtime[WorkflowDeps]) ->
         async with deps.session_factory() as session:
             channel = await ContentRepository(session).get_channel(task_id, version_id, platform)
         if channel is None:
-            # Default arguments bind the loop variable for this iteration's closure.
-            async def generate(feedback, adapter=adapter):
-                return await adapter.adapt(deps.llm, context, master, feedback=feedback)
+            llm = deps.models.for_role(adapter.model_role)
+
+            # Default arguments bind the loop variables for this iteration's closure.
+            async def generate(feedback, adapter=adapter, llm=llm):
+                return await adapter.adapt(llm, context, master, feedback=feedback)
 
             output, report = await generate_with_validation(
                 generate, context, max_fixes=deps.settings.max_copy_auto_fixes
@@ -49,7 +51,7 @@ async def adapt_channels(state: ContentState, runtime: Runtime[WorkflowDeps]) ->
                         platform=platform,
                         payload={"platform": platform, **output.model_dump(mode="json")},
                         validation=report.to_record(),
-                        provider=deps.llm.name,
+                        provider=llm.name,
                         prompt_version=adapter.prompt.version_label,
                     )
                 )

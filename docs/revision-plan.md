@@ -67,7 +67,7 @@ Ruff findings by rule:
 | 4 | `.gitignore` does not cover `storage/brands/`, where uploaded logos are stored | Open, phase 6 |
 | 5 | `.gitignore` does not cover database dumps (`*.sql`, `*.dump`) or private keys (`*.pem`) | Open, phase 6 |
 | 6 | There is no CI | Open, phase 6 |
-| 7 | One LLM provider and model serve every workflow step | Open, phase 1 |
+| 7 | One LLM provider and model serve every workflow step | Fixed in phase 1 |
 | 8 | Text records store only `openai_compatible` as the provider, not the model. Image records store provider and model. Tokens and latency are not stored | Open, phase 3 |
 | 9 | Slide text cannot be edited. Image feedback only changes the background art | Open, phase 4 |
 | 10 | Image downloads follow redirects without re-checking for HTTPS, and the size limit is applied only after the whole file is in memory. Found by reading the code, not by a failing test | Open, phase 5 |
@@ -81,6 +81,8 @@ The order below is proposed and can change. Each phase ends with its own tests a
 Choose provider and model separately for each role, such as topics, copy, channel adaptation and carousel planning. Today's single `LLM_*` settings must keep working as the default. The likely starting points are `app/core/config.py`, the factories in `app/ai/providers/__init__.py` and `LLMProvider` in `app/ai/runtime.py`.
 
 ### 2. Native Anthropic and compatible DeepSeek integration
+
+Delivered together with phase 1, against simulated HTTP servers. Live verification belongs to phase 5.
 
 Add an Anthropic provider that uses its native API, and support DeepSeek through the OpenAI-compatible path. A missing key or model must still stop the worker at startup, and nothing may silently fall back to mock.
 

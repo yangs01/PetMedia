@@ -3,11 +3,13 @@ from typing import Any
 from pydantic import BaseModel
 
 from app.ai.prompts import Prompt, load_prompt
+from app.ai.providers.model_config import ModelRole
 from app.publishing.base import PlatformAdapter, SlideExport
 
 
 class FacebookAdapter(PlatformAdapter):
     platform = "facebook"
+    model_role = ModelRole.FACEBOOK_ADAPTATION
 
     @property
     def prompt(self) -> Prompt:

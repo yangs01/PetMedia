@@ -89,6 +89,12 @@ class ProviderPermanentError(ProviderError):
     """Bad credentials, rejected request, content refusal: do not retry."""
 
 
+class ProviderRefusalError(ProviderPermanentError):
+    """The model declined the request. A fallback profile may still answer it."""
+
+    code = "PROVIDER_REFUSAL"
+
+
 class ProviderTransientError(ProviderError):
     """Timeout, rate limit or temporary server failure: retry with backoff."""
 

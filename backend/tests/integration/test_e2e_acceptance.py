@@ -21,6 +21,7 @@ import psycopg
 import pytest
 from PIL import Image
 
+from app.core.config import Settings
 from tests.conftest import (
     BRAND_BODY,
     PRODUCT_BODY,
@@ -62,6 +63,11 @@ class Processes:
             "LOG_LEVEL": "INFO",
             "PYTHONUNBUFFERED": "1",
         }
+        if Settings().llm_profiles_path:
+            # A developer's .env must not send these tests to real models.
+            mock_profiles = log_dir / "mock_models.yaml"
+            mock_profiles.write_text("profiles: {mock: {provider: mock}}\ndefault_profile: mock\n")
+            self.env["LLM_PROFILES_PATH"] = str(mock_profiles)
         self.started: list[subprocess.Popen] = []
         self.count = 0
 

@@ -8,7 +8,7 @@ why a restarted worker can supply fresh ones.
 from dataclasses import dataclass
 
 from app.ai.providers.image_provider import ImageProvider
-from app.ai.providers.llm_provider import LLMProvider
+from app.ai.providers.model_router import ModelRouter
 from app.core.config import Settings
 from app.db.session import SessionFactory
 from app.media.storage import Storage
@@ -17,7 +17,7 @@ from app.media.storage import Storage
 @dataclass(frozen=True)
 class WorkflowDeps:
     session_factory: SessionFactory
-    llm: LLMProvider
+    models: ModelRouter
     image: ImageProvider
     storage: Storage
     settings: Settings

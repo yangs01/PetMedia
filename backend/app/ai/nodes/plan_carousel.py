@@ -4,6 +4,7 @@ from langgraph.runtime import Runtime
 
 from app.ai.nodes.common import generate_with_validation, load_task
 from app.ai.prompts import load_prompt
+from app.ai.providers.model_config import ModelRole
 from app.ai.runtime import WorkflowDeps
 from app.ai.states.content_state import ContentState
 from app.core.exceptions import StructuredOutputError
@@ -29,9 +30,10 @@ async def plan_carousel(state: ContentState, runtime: Runtime[WorkflowDeps]) -> 
         master = MasterCopy.model_validate(version.content)
 
     if plan is None:
+        llm = deps.models.for_role(ModelRole.CAROUSEL_PLANNING)
 
         async def generate(feedback: str | None) -> CarouselPlanOutput:
-            output = await deps.llm.plan_carousel(
+            output = await llm.plan_carousel(
                 context, master=master, image_count=image_count, feedback=feedback
             )
             _ensure_plan_matches(output, image_count, {product.id for product in context.products})
@@ -47,7 +49,7 @@ async def plan_carousel(state: ContentState, runtime: Runtime[WorkflowDeps]) -> 
                     content_version_id=version_id,
                     slides=[slide.model_dump(mode="json") for slide in output.slides],
                     validation=report.to_record(),
-                    provider=deps.llm.name,
+                    provider=llm.name,
                     prompt_version=load_prompt("carousel_planning").version_label,
                 )
             )

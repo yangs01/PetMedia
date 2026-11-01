@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     langgraph_database_url: str = "postgresql://petmedia:petmedia@127.0.0.1:5432/petmedia"
     langgraph_schema: str = Field(default="langgraph", pattern=r"^[a-z_][a-z0-9_]*$")
 
+    # Optional YAML file of model profiles. When set, the LLM_* settings below are not used.
+    llm_profiles_path: Path | None = None
     llm_provider: Literal["mock", "openai_compatible"] = "mock"
     llm_api_key: SecretStr | None = None
     llm_model: str = ""
@@ -74,6 +76,13 @@ class Settings(BaseSettings):
     def resolved_storage_root(self) -> Path:
         root = self.storage_root
         return root if root.is_absolute() else (PROJECT_ROOT / root).resolve()
+
+    @property
+    def resolved_llm_profiles_path(self) -> Path | None:
+        path = self.llm_profiles_path
+        if path is None or path.is_absolute():
+            return path
+        return (PROJECT_ROOT / path).resolve()
 
 
 @lru_cache

@@ -91,9 +91,11 @@ class TestRestart:
             assert restored.interrupts[0].value == before.interrupts[0].value
 
             from app.ai.providers.mock_provider import MockImageProvider
+            from app.ai.providers.model_router import ModelRouter
             from app.ai.runtime import WorkflowDeps
 
-            deps = WorkflowDeps(session_factory, MockLLMProvider(), MockImageProvider(), storage, settings)
+            models = ModelRouter.uniform(MockLLMProvider())
+            deps = WorkflowDeps(session_factory, models, MockImageProvider(), storage, settings)
             queue = JobQueue(session_factory, worker_id="restarted-worker", lease_seconds=30)
             await drain(JobRunner(graph=fresh_graph, deps=deps, queue=queue, engine=engine))
 

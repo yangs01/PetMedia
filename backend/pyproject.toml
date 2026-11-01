@@ -5,6 +5,7 @@ description = "AI-powered social media content production backend for pet produc
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "alembic>=1.13,<2",
+    "anthropic>=2,<3",
     "fastapi>=0.115,<1",
     "httpx>=0.27,<1",
     "langgraph>=1.2.12,<2",
@@ -13,13 +14,16 @@ dependencies = [
     "psycopg[binary,pool]>=3.2,<4",
     "pydantic>=2.7,<3",
     "pydantic-settings>=2.3,<3",
+    "python-dotenv>=1,<2",
     "python-multipart>=0.0.9",
+    "pyyaml>=6,<7",
     "sqlalchemy[asyncio]>=2.0.36,<2.2",
     "uvicorn>=0.30,<1",
 ]
 
 [dependency-groups]
 dev = [
+    "httpx2>=2,<3",
     "pytest>=8,<10",
     "pytest-asyncio>=1.0,<2",
     "ruff>=0.6",

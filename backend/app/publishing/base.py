@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from app.ai.prompts import Prompt
 from app.ai.providers.llm_provider import LLMProvider
+from app.ai.providers.model_config import ModelRole
 from app.schemas.content import GenerationContext, MasterCopy
 
 
@@ -28,6 +29,7 @@ class SlideExport:
 
 class PlatformAdapter(ABC):
     platform: str
+    model_role: ModelRole
 
     @property
     @abstractmethod

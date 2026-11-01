@@ -60,7 +60,9 @@ The API never touches LangGraph. All they share is PostgreSQL, which is what let
 
 **Async stack with a selector event loop.** psycopg's async mode refuses Windows' default Proactor loop, so entry points go through `app/core/event_loop.py`. This is why the API starts with `python -m app.serve`.
 
-**Direct HTTP for providers.** `httpx` against the OpenAI-compatible endpoints avoids tying the project to one vendor's SDK and its release cycle.
+**Direct HTTP for compatible providers, the official SDK for Claude.** `httpx` against OpenAI-style endpoints serves many services without tying the project to one vendor's SDK. Claude's native API is different and its API version has its own rules, so its provider uses Anthropic's SDK, kept to one file.
+
+**Models are chosen per role.** Nodes ask `ModelRouter` for a role and do not know which vendor answers. `ModelRegistry` validates profiles against each provider's capabilities and owns one client per profile. See [model-configuration.md](model-configuration.md).
 
 **One image set for both platforms.** 4:5 portrait suits the Instagram and Facebook feeds, so the carousel is rendered once. `app/media/specs.py` is the place to change this.
 
@@ -82,8 +84,8 @@ Files live under `STORAGE_ROOT`, in `products/`, `brands/`, `generated/` and `ex
 
 | Future need | Where it goes |
 |---|---|
-| New AI vendor | Implement `LLMProvider` or `ImageProvider`; register it in `app/ai/providers/__init__.py` |
-| New platform | Implement `PlatformAdapter`; register it in `app/publishing/__init__.py`. Channels are plain strings, so no migration is needed |
+| New AI vendor | Implement `LLMProvider` and register it in `ModelRegistry` with its capabilities, or implement `ImageProvider` and register it in `app/ai/providers/__init__.py` |
+| New platform | Implement `PlatformAdapter`, add a `ModelRole` for it, and register it in `app/publishing/__init__.py`. Channels are plain strings, so no migration is needed |
 | Real publishing (Phase 3) | Add a publish method to adapters and a new job type. The graph does not need to know about Meta's API |
 | Scheduling (Phase 2) | A scheduler process that calls `TaskService.create_task` |
 | Live progress | `task_events` ids already work as a cursor for SSE or WebSockets |

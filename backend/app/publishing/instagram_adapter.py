@@ -4,11 +4,13 @@ from typing import Any
 from pydantic import BaseModel
 
 from app.ai.prompts import Prompt, load_prompt
+from app.ai.providers.model_config import ModelRole
 from app.publishing.base import PlatformAdapter, SlideExport
 
 
 class InstagramAdapter(PlatformAdapter):
     platform = "instagram"
+    model_role = ModelRole.INSTAGRAM_ADAPTATION
 
     @property
     def prompt(self) -> Prompt:

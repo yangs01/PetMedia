@@ -11,7 +11,7 @@ Phase 1 is backend only. It has no frontend and publishes nothing automatically.
 - Carousel images with selective regeneration of individual slides
 - Marketing integrity checks: claims are grounded in product data, and fictional reviews are not allowed
 - Durable PostgreSQL job queue, with recovery from worker crashes
-- Mock providers for offline work, and real OpenAI-compatible LLM and image providers
+- Mock providers for offline work, and real image and LLM providers, with a separately configurable model for each workflow step
 - ZIP exports per platform, or combined, with provenance metadata
 
 ## Architecture
@@ -30,7 +30,7 @@ flowchart LR
     API --> Storage
 ```
 
-More detail: [architecture](docs/architecture.md), [workflow](docs/workflow.md), [database](docs/database.md), [API](docs/api.md).
+More detail: [architecture](docs/architecture.md), [workflow](docs/workflow.md), [database](docs/database.md), [API](docs/api.md), [model configuration](docs/model-configuration.md).
 
 ## Technology stack
 
@@ -160,7 +160,11 @@ IMAGE_SIZE=1024x1536
 
 `IMAGE_SIZE` must be a size your image model supports; the renderer crops the result to 1080 x 1350. If your provider supports JSON schema responses, `LLM_STRUCTURED_MODE=json_schema` is stricter than the default. If a key or model is missing, the worker refuses to start and says so: it never falls back to mock.
 
-**These real providers have been tested against a simulated HTTP server, not a live vendor API.** Run one low-cost task before relying on them.
+### A different model for each step
+
+Topic generation, first drafts, revisions, Instagram, Facebook and carousel planning can each use their own provider, model and key. OpenAI, Claude through Anthropic's native API, DeepSeek and any OpenAI-compatible service are supported. Copy `config/models.example.yaml` to `config/models.yaml`, then set `LLM_PROFILES_PATH=config/models.yaml` and your keys in `.env`. See [docs/model-configuration.md](docs/model-configuration.md).
+
+**All real providers have been tested against simulated HTTP servers, not live vendor APIs.** Run one low-cost task with each before relying on it.
 
 ## Testing
 
@@ -196,7 +200,7 @@ To use another database, set `TEST_DATABASE_URL` and `TEST_LANGGRAPH_DATABASE_UR
 | `database "petmedia" does not exist` | Run the SQL in step 1. |
 | Port 5432 or 8000 is in use | Change the port in your database URLs, or `API_PORT`, in `.env`. |
 | `/health/ready` returns 503 | Its `checks` field names the problem. If `migrations` or `checkpoints` is false, run `uv run python -m app.db.init_db`. |
-| The worker exits with `PROVIDER_NOT_CONFIGURED` | Set the key and model in `.env`, or switch back to `mock`. |
+| The worker exits with `PROVIDER_NOT_CONFIGURED` | The message names the profile, setting or variable. Set the key and model in `.env`, correct the profile, or switch back to `mock`. |
 | A task is `FAILED` | Read `error` on the task. Fix the cause, then `POST /api/v1/tasks/{id}/retry`. Finished work is not repeated. |
 | Decision returns 409 | The task moved on, or a decision is already being processed. Reload the task. |
 
