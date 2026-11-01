@@ -2,7 +2,7 @@
 
 Backend for AI-assisted social media content production for a pet products company. An operator picks products, then AI proposes topics, writes a draft, adapts it for Instagram and Facebook, and produces a 3 to 5 image carousel. A person approves each stage, and the result downloads as a ready-to-post package.
 
-Phase 1 is backend only. It has no frontend and publishes nothing automatically.
+A browser dashboard lets you run the whole workflow and watch it move between steps. See [frontend/README.md](frontend/README.md). Nothing is published automatically.
 
 ## Features
 
@@ -44,6 +44,7 @@ Everything below is free. Run the commands in PowerShell.
 |---|---|---|
 | **PostgreSQL 15 or newer** | All data and workflow checkpoints | Installer from [postgresql.org/download/windows](https://www.postgresql.org/download/windows/). Remember the password you choose for the `postgres` user, and keep the default port 5432. |
 | **uv** | Installs Python and all libraries | See below |
+| **Node.js 20.19 or newer** | The browser dashboard only | [nodejs.org](https://nodejs.org/) |
 | **Git** (optional) | Cloning the code | [git-scm.com](https://git-scm.com/download/win) |
 | **Docker Desktop** (optional) | Running PostgreSQL in a container instead of installing it | [docker.com](https://www.docker.com/products/docker-desktop/) |
 
