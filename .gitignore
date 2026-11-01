@@ -19,3 +19,9 @@ storage/exports/*
 # Editors
 .vscode/
 .idea/
+
+# Generated demo exports
+/content_package*.zip
+
+# Other local export files
+/storage/exports/
