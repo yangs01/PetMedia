@@ -1,0 +1,22 @@
+# Optional alternative to a locally installed PostgreSQL. See README.md.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: petmedia-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-petmedia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-petmedia}
+      POSTGRES_DB: ${POSTGRES_DB:-petmedia}
+    ports:
+      # Bound to localhost only: this database must not be reachable from the network.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - petmedia_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  petmedia_pgdata:
