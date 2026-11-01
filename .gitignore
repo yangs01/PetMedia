@@ -16,6 +16,10 @@ storage/generated/*
 storage/exports/*
 !storage/**/.gitkeep
 
+# Frontend
+node_modules/
+frontend/dist/
+
 # Editors
 .vscode/
 .idea/

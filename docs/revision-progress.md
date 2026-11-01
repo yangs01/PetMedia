@@ -11,6 +11,7 @@ Details and baseline results are in [revision-plan.md](revision-plan.md).
 | 4 | Editable carousel slide content | Not started |
 | 5 | Real provider smoke tests | Not started |
 | 6 | CI/CD and documentation hardening | Not started |
+| Added | Browser frontend in `frontend/` | Done, tested with mock providers only |
 
 ## Phase 0 (2026-11-01)
 

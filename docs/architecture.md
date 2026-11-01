@@ -90,4 +90,3 @@ Files live under `STORAGE_ROOT`, in `products/`, `brands/`, `generated/` and `ex
 | Scheduling (Phase 2) | A scheduler process that calls `TaskService.create_task` |
 | Live progress | `task_events` ids already work as a cursor for SSE or WebSockets |
 | Object storage | Another `Storage` implementation |
-| A frontend | Render from `GET /tasks/{id}`: `status`, `review_stage` and `available_actions` drive the UI |
