@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # PetMedia AI
 
 Backend for AI-assisted social media content production for a pet products company. An operator picks products, then AI proposes topics, writes a draft, adapts it for Instagram and Facebook, and produces a 3 to 5 image carousel. A person approves each stage, and the result downloads as a ready-to-post package.
@@ -213,3 +214,7 @@ This is a single-operator local application. It binds to `127.0.0.1` and has no 
 - Image feedback changes the generated background art. Slide headlines and layout come from the carousel plan and do not change.
 - There is no cancel during active generation. A task can be cancelled while queued, failed or paused at a review.
 - The default font covers Latin text only, which suits the English-only scope.
+=======
+# PetMedia
+TBD
+>>>>>>> 0ecf4e0d72834308b805396229dff9d0c4296fc9
