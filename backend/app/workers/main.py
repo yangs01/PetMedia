@@ -13,7 +13,7 @@ from uuid import uuid4
 
 from app.ai.graphs.content_graph import build_content_graph
 from app.ai.persistence.checkpointer import open_checkpointer, setup_checkpointer
-from app.ai.providers import create_image_provider, create_llm_provider
+from app.ai.providers import create_image_provider, create_model_router
 from app.ai.runtime import WorkflowDeps
 from app.core.config import Settings, get_settings
 from app.core.event_loop import run_async
@@ -37,7 +37,7 @@ async def run_worker(settings: Settings, stop: asyncio.Event) -> None:
     # Created up front so a missing API key stops the worker at startup with a clear message.
     deps = WorkflowDeps(
         session_factory=session_factory,
-        llm=create_llm_provider(settings),
+        models=create_model_router(settings),
         image=create_image_provider(settings),
         storage=storage,
         settings=settings,
@@ -49,7 +49,10 @@ async def run_worker(settings: Settings, stop: asyncio.Event) -> None:
     async with open_checkpointer(settings, max_size=settings.worker_concurrency * 2 + 2) as saver:
         graph = build_content_graph(saver, max_node_attempts=settings.max_generation_retries)
         runner = JobRunner(graph=graph, deps=deps, queue=queue, engine=engine)
-        logger.info("Worker started", extra={"worker_id": worker_id, "llm": deps.llm.name, "image": deps.image.name})
+        logger.info(
+            "Worker started",
+            extra={"worker_id": worker_id, "llm_roles": deps.models.describe(), "image": deps.image.name},
+        )
         try:
             while not stop.is_set():
                 claimed = None
@@ -75,10 +78,10 @@ async def run_worker(settings: Settings, stop: asyncio.Event) -> None:
                 job_task.cancel()
             if running:
                 await asyncio.gather(*running, return_exceptions=True)
-    for provider in (deps.llm, deps.image):
-        close = getattr(provider, "aclose", None)
-        if close:
-            await close()
+    await deps.models.aclose()
+    close_image = getattr(deps.image, "aclose", None)
+    if close_image:
+        await close_image()
     await engine.dispose()
     logger.info("Worker stopped", extra={"worker_id": worker_id})
 

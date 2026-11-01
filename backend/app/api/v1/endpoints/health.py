@@ -22,7 +22,10 @@ async def ready(session: SessionDep, settings: SettingsDep, storage: StorageDep)
         {
             "status": "ready" if is_ready else "not_ready",
             "checks": checks,
-            "providers": {"llm": settings.llm_provider, "image": settings.image_provider},
+            "providers": {
+                "llm": "profiles" if settings.llm_profiles_path else settings.llm_provider,
+                "image": settings.image_provider,
+            },
         },
         status_code=200 if is_ready else 503,
     )

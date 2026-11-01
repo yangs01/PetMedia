@@ -4,6 +4,7 @@ from langgraph.runtime import Runtime
 
 from app.ai.nodes.common import ensure_status, load_task
 from app.ai.prompts import load_prompt
+from app.ai.providers.model_config import ModelRole
 from app.ai.runtime import WorkflowDeps
 from app.ai.states.content_state import ContentState
 from app.core.exceptions import StructuredOutputError
@@ -36,7 +37,8 @@ async def generate_topics(state: ContentState, runtime: Runtime[WorkflowDeps]) -
 
     if not existing:
         count = deps.settings.default_topic_count
-        batch = await deps.llm.generate_topics(
+        llm = deps.models.for_role(ModelRole.TOPIC_GENERATION)
+        batch = await llm.generate_topics(
             context, count=count, feedback=feedback, previous_titles=previous_titles
         )
         if len(batch.topics) != count:
@@ -49,7 +51,7 @@ async def generate_topics(state: ContentState, runtime: Runtime[WorkflowDeps]) -
                 batch_number=batch_number,
                 position=position,
                 operator_feedback=feedback,
-                provider=deps.llm.name,
+                provider=llm.name,
                 prompt_version=load_prompt("topic_generation").version_label,
                 **topic.model_dump(),
             )

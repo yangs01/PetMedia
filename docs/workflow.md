@@ -45,7 +45,7 @@ flowchart TD
 
 `ContentState` holds only ids and small values such as `selected_topic_id`, `approved_content_version_id` and `pending_slide_numbers`. Content and images stay in the database and storage.
 
-Providers and the database session factory are not state. They arrive through LangGraph's runtime context (`context_schema=WorkflowDeps`), which is not checkpointed, so a restarted worker simply supplies fresh ones.
+The model router, image provider and database session factory are not state. They arrive through LangGraph's runtime context (`context_schema=WorkflowDeps`), which is not checkpointed, so a restarted worker simply supplies fresh ones.
 
 ## Status model
 
@@ -125,12 +125,12 @@ Here is how that plays out for each crash point:
 
 | Level | Applies to | Behavior |
 |---|---|---|
-| Structured output | Invalid model JSON | Up to `LLM_MAX_STRUCTURED_RETRIES` calls, with the error sent back to the model |
+| Structured output | Invalid or blank model output | Up to `LLM_MAX_STRUCTURED_RETRIES` calls, or the profile's `max_structured_retries`, with the error sent back to the model |
 | Node (`RetryPolicy`) | Timeouts, rate limits, 5xx, database connection errors | Up to `MAX_GENERATION_RETRIES` attempts with exponential backoff |
 | Job | Database connection errors reaching the runner; worker crashes | Up to `JOB_MAX_ATTEMPTS` |
 | Operator | Any `FAILED` task | `POST /tasks/{id}/retry`, which continues from the checkpoint and carries any unconsumed decision |
 
-Permanent errors such as invalid keys or rejected requests are not retried. Provider errors do not get job-level retries on top of node retries, which would multiply API calls.
+Permanent errors such as invalid keys, rejected requests or a model's refusal are not retried, though a [fallback profile](model-configuration.md#fallback-profiles) can answer a refusal. Provider errors do not get job-level retries on top of node retries, which would multiply API calls.
 
 ## Preventing concurrent execution
 

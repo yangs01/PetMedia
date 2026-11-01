@@ -1,0 +1,33 @@
+# Model profiles: copy this file to config/models.yaml, then set in .env:
+#   LLM_PROFILES_PATH=config/models.yaml
+#
+# This file holds no secrets. credential_env names the environment variable that
+# holds a key. ${NAME} is replaced from the environment, in model and base_url only.
+# See docs/model-configuration.md for every field and what each provider accepts.
+
+profiles:
+  topic_fast:
+    provider: deepseek
+    model: ${DEEPSEEK_MODEL}
+    credential_env: DEEPSEEK_API_KEY
+    max_tokens: 4000
+
+  copy_quality:
+    provider: anthropic
+    model: ${CLAUDE_MODEL}
+    credential_env: ANTHROPIC_API_KEY
+    effort: high
+    timeout_seconds: 300
+
+  social_adapter:
+    provider: openai
+    model: ${OPENAI_MODEL}
+    credential_env: OPENAI_API_KEY
+
+roles:
+  topic_generation: topic_fast
+  copy_generation: copy_quality
+  copy_revision: copy_quality
+  instagram_adaptation: social_adapter
+  facebook_adaptation: topic_fast
+  carousel_planning: social_adapter

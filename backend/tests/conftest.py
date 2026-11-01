@@ -21,6 +21,7 @@ from sqlalchemy import text
 from app.ai.graphs.content_graph import build_content_graph
 from app.ai.persistence.checkpointer import open_checkpointer, setup_checkpointer
 from app.ai.providers.mock_provider import MockImageProvider, MockLLMProvider
+from app.ai.providers.model_router import ModelRouter
 from app.ai.runtime import WorkflowDeps
 from app.core.config import Settings
 from app.db.init_db import run_migrations
@@ -126,10 +127,10 @@ async def saver(settings) -> AsyncIterator:
 def make_runner(settings, session_factory, storage, engine, saver):
     """Build a runner that executes real queue jobs in-process."""
 
-    def build(*, llm=None, image=None, worker_id: str = "test-worker", max_node_attempts: int = 3):
+    def build(*, llm=None, models=None, image=None, worker_id: str = "test-worker", max_node_attempts: int = 3):
         deps = WorkflowDeps(
             session_factory=session_factory,
-            llm=llm or MockLLMProvider(),
+            models=models or ModelRouter.uniform(llm or MockLLMProvider()),
             image=image or MockImageProvider(),
             storage=storage,
             settings=settings,

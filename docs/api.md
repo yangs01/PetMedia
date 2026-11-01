@@ -37,12 +37,14 @@ Every error has the same shape:
 | 422 | Invalid input | `VALIDATION_ERROR`, `INVALID_IMAGE`, `UNSUPPORTED_IMAGE_TYPE`, `UPLOAD_TOO_LARGE`, `IMAGE_TOO_LARGE` |
 | 500 | Server problem, details in logs | `INTERNAL_ERROR`, `MEDIA_FILE_MISSING` |
 
+A task's `error` can also carry provider codes: `PROVIDER_ERROR`, `PROVIDER_REFUSAL`, `PROVIDER_TRANSIENT_ERROR` and `INVALID_STRUCTURED_OUTPUT`.
+
 ## Health
 
 | Endpoint | Purpose |
 |---|---|
 | `GET /health` | Process is alive |
-| `GET /health/ready` | 200 if database, migrations, checkpoints and storage are all fine; otherwise 503 with `checks` naming the problem |
+| `GET /health/ready` | 200 if database, migrations, checkpoints and storage are all fine; otherwise 503 with `checks` naming the problem. `providers.llm` is `profiles` when `LLM_PROFILES_PATH` is set |
 
 ## Products
 

@@ -4,6 +4,7 @@ from langgraph.runtime import Runtime
 
 from app.ai.nodes.common import ensure_status, load_task
 from app.ai.prompts import load_prompt
+from app.ai.providers.model_config import ModelRole
 from app.ai.runtime import WorkflowDeps
 from app.ai.states.content_state import ContentState
 from app.core.status import GenerationSource, TaskStatus
@@ -41,12 +42,14 @@ async def generate_copy(state: ContentState, runtime: Runtime[WorkflowDeps]) -> 
     if saved is None:
         topic = TopicOutput.model_validate(topic_record, from_attributes=True)
         if revision:
+            llm = deps.models.for_role(ModelRole.COPY_REVISION)
             current = MasterCopy.model_validate(parent.content)
-            draft = await deps.llm.revise_master_copy(
+            draft = await llm.revise_master_copy(
                 context, topic=topic, current=current, feedback=revision["feedback"]
             )
         else:
-            draft = await deps.llm.generate_master_copy(context, topic=topic)
+            llm = deps.models.for_role(ModelRole.COPY_GENERATION)
+            draft = await llm.generate_master_copy(context, topic=topic)
 
         prompt_name = "copy_revision" if revision else "copy_generation"
         async with deps.session_factory() as session:
@@ -58,7 +61,7 @@ async def generate_copy(state: ContentState, runtime: Runtime[WorkflowDeps]) -> 
                     parent_version_id=parent.id if parent else None,
                     revision_feedback=revision["feedback"] if revision else None,
                     idempotency_key=idempotency_key,
-                    provider=deps.llm.name,
+                    provider=llm.name,
                     prompt_version=load_prompt(prompt_name).version_label,
                 )
             )
